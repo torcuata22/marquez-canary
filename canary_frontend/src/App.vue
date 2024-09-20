@@ -4,7 +4,6 @@
 
 <script setup>
 const loginWithGoogle = () => {
-  const clientId = '479613814071-8vr213m5pftojeumbm4q3gl163skqn33.apps.googleusercontent.com';
   const redirectUri = 'http://localhost:8080/callback/'
   const scope = 'email profile';
   const nonce = btoa(Math.random().toString()); 
