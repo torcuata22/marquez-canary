@@ -1,19 +1,46 @@
 <template>
-  <div id="app">
-    <google-login @success="onLoginSuccess" @fail="onLoginFail" />
-  </div>
+  <button @click="loginWithGoogle">Login with Google</button>
 </template>
 
-<script>
-export default {
-  methods: {
-    onLoginSuccess(response) {
-      console.log('Google login successful:', response);
-      // You can send the response to your Django backend here via Axios
-    },
-    onLoginFail(error) {
-      console.log('Google login failed:', error);
+<script setup>
+const loginWithGoogle = () => {
+  const clientId = '479613814071-8vr213m5pftojeumbm4q3gl163skqn33.apps.googleusercontent.com';
+  const redirectUri = 'http://localhost:8080/callback/'
+  const scope = 'email profile';
+  const nonce = btoa(Math.random().toString()); 
+  
+  const url = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=id_token&scope=${scope}&nonce=${nonce}`;
+  window.location.href = url;
+};
+
+// Add logic to capture the token after redirect
+window.addEventListener('load', async () => {
+  const hash = window.location.hash;
+  if (hash) {
+    const params = new URLSearchParams(hash.substring(1));
+    const idToken = params.get('id_token');
+    console.log("ID Token:", idToken);
+    if (idToken) {
+      try {
+        const res = await fetch('http://localhost:8000/auth/google/', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ id_token: idToken }), // Send token to backend
+        });
+
+        if (!res.ok) {
+          const errorDetails = await res.json();
+          console.error("Error response from server:", errorDetails);
+        } else {
+          const data = await res.json();
+          console.log("Login successful:", data);
+        }
+      } catch (error) {
+        console.error("Error during login:", error);
+      }
     }
   }
-}
+});
 </script>
