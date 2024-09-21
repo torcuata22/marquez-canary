@@ -4,6 +4,7 @@
 
 <script setup>
 const loginWithGoogle = () => {
+  const clientId = process.env.VUE_APP_GOOGLE_CLIENT_ID
   const redirectUri = 'http://localhost:8080/callback/'
   const scope = 'email profile';
   const nonce = btoa(Math.random().toString()); 

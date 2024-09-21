@@ -9,7 +9,7 @@
 
 <script setup>
 const linkWithGithub = () => {
-const githubClientId = 'Ov23linwZHiUm7Y4yNus';
+const githubClientId = process.env.VUE_APP_GITHUB_CLIENT_ID;
 const redirectUri = 'http://localhost:8000/auth/github/';
 const url = `https://github.com/login/oauth/authorize?client_id=${githubClientId}&redirect_uri=${redirectUri}`;
 window.location.href = url;
