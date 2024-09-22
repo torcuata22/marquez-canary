@@ -10,14 +10,13 @@
     <div v-else>
       <HomeView />
     </div>
-      <router-view /> <!--just in case I add something else -->
+      <!--<router-view /> just in case I add something else -->
   </div>
 </template>
 
 <script>
 import { ref } from 'vue';
 import HomeView from './views/HomeView.vue'; 
-// eslint-disable-next-line no-unused-vars
 import LandingPage from './views/LandingPage.vue';
 import GitHubRepos from './views/GitHubRepos.vue';
 
@@ -28,16 +27,26 @@ export default {
     GitHubRepos
   },
   setup() {
-  const isAuthenticated = ref(false);
-  const token = localStorage.getItem('google_token');
-  if (token) {
-    isAuthenticated.value = true;
+    const isAuthenticated = ref(false);
+    const token = localStorage.getItem('google_token');
+    if (token) {
+      isAuthenticated.value = true;
+      console.log('Is Authenticated:', isAuthenticated.value);
+
   }
-  return {
-    isAuthenticated
-  };
-},  
-};
+  const isGitHubLinked = ref(false);
+    const githubToken = localStorage.getItem('github_token'); // Check for GitHub token
+    if (githubToken) {
+      isGitHubLinked.value = true; 
+    }
+    
+    return {
+      isAuthenticated,
+      isGitHubLinked
+    };
+  },
+};  
+
 </script>
 
 <style>

@@ -56,9 +56,7 @@ const sendTokenToBackend = async (idToken) => {
 
 <style scoped>
 
-  body {
-    background-color: #f8f8f8;
-  }
+
 .card-body {
   display: flex;
   flex-direction: column;

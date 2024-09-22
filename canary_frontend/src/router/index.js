@@ -2,8 +2,9 @@ import { createRouter, createWebHistory } from 'vue-router';
 import HomeView from '../views/HomeView.vue';
 import LandingPage from '../views/LandingPage.vue';
 import GitHubRepos from '../views/GitHubRepos.vue'; 
-import CallbackView from '../views/Callback.vue';
-import GitHubCallback from '../views/GitHubCallback.vue';
+import GoogleCallback from '../views/GoogleCallback.vue';
+import GithubCallback from '../views/GithubCallback.vue';
+
 
 const routes = [
   {
@@ -22,14 +23,14 @@ const routes = [
     component: GitHubRepos,
   },
   {
-    path: '/auth/github',
-    name: 'GitHubCallback',
-    component: GitHubCallback, 
+    path: '/auth/githubcallback',
+    name: 'GithubCallback',
+    component: GithubCallback, 
   },
   {
-    path: '/callback', // Add the callback route
-    name: 'Callback',
-    component: CallbackView, // Use a new view to handle the token
+    path: '/callback', 
+    name: 'GoogleCallback',
+    component: GoogleCallback, 
   },
 ];
 
