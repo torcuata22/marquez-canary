@@ -2,6 +2,10 @@
   <div id="app">
     <div v-if="isAuthenticated">
       <LandingPage />
+      <div v-if="isGitHubLinked">
+        <GitHubRepos /> <!-- Show only if GitHub account is linked -->
+      </div>
+
     </div>
     <div v-else>
       <HomeView />
@@ -15,13 +19,13 @@ import { ref } from 'vue';
 import HomeView from './views/HomeView.vue'; 
 // eslint-disable-next-line no-unused-vars
 import LandingPage from './views/LandingPage.vue';
-import Repos from './views/Repos.vue';
+import GitHubRepos from './views/GitHubRepos.vue';
 
 export default {
   components: {
     HomeView, 
     LandingPage,
-    Repos
+    GitHubRepos
   },
   setup() {
   const isAuthenticated = ref(false);

@@ -1,7 +1,15 @@
 <template>
-  <button @click="loginWithGoogle">
-  <i class="fab fa-google"></i> Login with Google
-  </button>
+  <div class="container p-5">
+    <div class="card mx-auto mt-5 shadow-lg p-3 mb-5 bg-body-tertiary rounded" style="width: 18rem;">
+      <div class="card-body text-center">
+        <img src="../assets/google.png" class="card-img-top" alt="Logo">
+        <h5 class="card-title mt-5">Login Here</h5>
+          <button @click="loginWithGoogle" class="btn btn-lg btn-block btn-primary mt-5 flex justify-center">
+          <i class="fab fa-google flex justify-center"></i> Login with Google
+      </button>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script setup>
@@ -47,17 +55,19 @@ const sendTokenToBackend = async (idToken) => {
 </script>
 
 <style scoped>
-.btn-google {
-  background-color: #db4437;
-  color: white;
-  font-size: 16px;
-  padding: 10px;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
+
+  body {
+    background-color: #f8f8f8;
+  }
+.card-body {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
 
-.btn-google i {
-  margin-right: 10px;
+.btn {
+  width: 100%; 
 }
+
 </style>

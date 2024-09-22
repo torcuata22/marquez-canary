@@ -12,8 +12,8 @@ urlpatterns = [
     path('github/', LinkGitHub.as_view(), name='link-github'),
     path('github/callback/', GitHubCallbackView.as_view(), name='github-callback'),
     path('api/github/repositories/', GitHubRepositoriesView.as_view(), name='github-repositories'),
+    # path('api/github/webhook/', GitHubWebhookView.as_view(), name='github-webhook'),
     
-
 ]
 
 #add: http://localhost:8000/auth/github/ (call back uri)
