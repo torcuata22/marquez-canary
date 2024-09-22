@@ -2,7 +2,9 @@
   <div class="landing-page">
     <h1>Welcome!</h1>
     <p>Please click the button below to connect the app to your GitHub account.</p>
-    <button @click="linkWithGithub">Link GitHub Account</button>
+    <button @click="linkWithGithub">
+    <i class="fab fa-github"></i> Link GitHub Account
+    </button>
   </div>
 </template>
 
@@ -15,6 +17,17 @@ const linkWithGithub = () => {
 };
 </script>
 
-<style>
-/* Add any styles you need here */
-</style>
+<style scoped>
+  .btn-github {
+    background-color: #333;
+    color: white;
+    font-size: 16px;
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+
+  .btn-github i {
+    margin-right: 10px;
+  }

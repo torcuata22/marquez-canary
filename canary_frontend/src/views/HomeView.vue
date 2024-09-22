@@ -1,5 +1,7 @@
 <template>
-  <button @click="loginWithGoogle">Login with Google</button>
+  <button @click="loginWithGoogle">
+  <i class="fab fa-google"></i> Login with Google
+  </button>
 </template>
 
 <script setup>
@@ -43,3 +45,19 @@ const sendTokenToBackend = async (idToken) => {
   }
 };
 </script>
+
+<style scoped>
+.btn-google {
+  background-color: #db4437;
+  color: white;
+  font-size: 16px;
+  padding: 10px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.btn-google i {
+  margin-right: 10px;
+}
+</style>

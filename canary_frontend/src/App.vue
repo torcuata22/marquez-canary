@@ -15,11 +15,13 @@ import { ref } from 'vue';
 import HomeView from './views/HomeView.vue'; 
 // eslint-disable-next-line no-unused-vars
 import LandingPage from './views/LandingPage.vue';
+import Repos from './views/Repos.vue';
 
 export default {
   components: {
     HomeView, 
-    LandingPage
+    LandingPage,
+    Repos
   },
   setup() {
   const isAuthenticated = ref(false);
