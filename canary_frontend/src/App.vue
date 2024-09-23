@@ -10,7 +10,7 @@
     <div v-else>
       <HomeView />
     </div>
-      <!--<router-view /> just in case I add something else -->
+    <router-view />
   </div>
 </template>
 
@@ -28,17 +28,18 @@ export default {
   },
   setup() {
     const isAuthenticated = ref(false);
+    const isGitHubLinked = ref(false);  // Declare isGitHubLinked only once
+
     const token = localStorage.getItem('google_token');
     if (token) {
       isAuthenticated.value = true;
       console.log('Is Authenticated:', isAuthenticated.value);
+    }
 
-  }
-  const isGitHubLinked = ref(false);
     const githubToken = localStorage.getItem('github_token'); // Check for GitHub token
     if (githubToken) {
-      isGitHubLinked.value = true; 
-      console.log('Github Is Authenticated:', isAuthenticated.value);
+      isGitHubLinked.value = true;
+      console.log('GitHub Is Linked:', isGitHubLinked.value);
     }
     
     return {
@@ -47,8 +48,8 @@ export default {
     };
   },
 };  
-
 </script>
+
 
 <style>
  

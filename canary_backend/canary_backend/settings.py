@@ -83,7 +83,7 @@ REST_FRAMEWORK = {
 
 
 #required by allauth
-SITE_ID = 1
+SITE_ID = 2
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
@@ -117,8 +117,8 @@ CORS_ALLOW_METHODS = [
 CORS_ALLOW_CREDENTIALS = True
 
 AUTHENTICATION_BACKENDS = (
-    'django.contrib.auth.backends.ModelBackend',
     'allauth.account.auth_backends.AuthenticationBackend',
+    'django.contrib.auth.backends.ModelBackend',
 )
 
 SOCIALACCOUNT_PROVIDERS = {
@@ -129,10 +129,9 @@ SOCIALACCOUNT_PROVIDERS = {
         'SECRET': os.getenv('GOOGLE_CLIENT_SECRET'),
     },
     'github': {
-        'SCOPE': [
-            'user',
-            'repo',
-        ],
+        'SCOPE': ['user', 'repo'],
+        'CLIENT_ID': os.getenv('GITHUB_CLIENT_ID'),
+        'SECRET': os.getenv('GITHUB_CLIENT_SECRET'),
     },
 }
 

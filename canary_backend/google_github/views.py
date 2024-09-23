@@ -7,14 +7,19 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.shortcuts import redirect
 from django.utils.decorators import method_decorator
+from django.contrib.auth import get_user_model
 from rest_framework.views import APIView
 from rest_framework import status, permissions, viewsets
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
 from rest_framework_simplejwt.tokens import RefreshToken
-from allauth.socialaccount.models import SocialAccount
+from allauth.socialaccount.models import SocialAccount, SocialToken
+from allauth.socialaccount.adapter import DefaultSocialAccountAdapter
+from allauth.socialaccount.providers.github.provider import GitHubProvider
 from allauth.socialaccount.providers.google.views import GoogleOAuth2Adapter
 from allauth.socialaccount.providers.github.views import GitHubOAuth2Adapter
+from allauth.socialaccount.adapter import DefaultSocialAccountAdapter
+from allauth.account.adapter import DefaultAccountAdapter
 from dj_rest_auth.registration.views import SocialLoginView
 from .serializers import UserSerializer
 from .models import User, GitHubRepository
@@ -43,100 +48,89 @@ class LinkGitHub(SocialLoginView):
         )
         return JsonResponse({'url': url})
 
+
+
 class GitHubCallbackView(APIView):
-    permission_classes = [permissions.AllowAny]  # For testing
+    permission_classes = [permissions.AllowAny]
 
     def get(self, request):
-        print("GitHub Callback triggered")
-        print("Request Query Params:", request.query_params)
-
         code = request.query_params.get('code')
+        print(f"CODE: {code}")
         if not code:
-            print("No code provided")
             return Response({"error": "Code not provided"}, status=status.HTTP_400_BAD_REQUEST)
 
         github_client_id = os.getenv('GITHUB_CLIENT_ID')
         github_client_secret = os.getenv('GITHUB_CLIENT_SECRET')
         token_url = 'https://github.com/login/oauth/access_token'
 
-        # Prepare data to exchange code for an access token
+        # Exchange code for access token
         token_data = {
             'client_id': github_client_id,
             'client_secret': github_client_secret,
             'code': code,
         }
-        print(f"TOKEN DATA: {token_data}")
 
         headers = {'Accept': 'application/json'}
         token_response = req.post(token_url, data=token_data, headers=headers)
 
         if token_response.status_code != 200:
-            print(f"Failed to obtain access token: {token_response.content}")
             return Response({"error": "Failed to obtain access token"}, status=status.HTTP_400_BAD_REQUEST)
 
-        # Extract the access token
         access_token = token_response.json().get('access_token')
         if not access_token:
-            print("No access token received")
             return Response({"error": "No access token received"}, status=status.HTTP_400_BAD_REQUEST)
 
         # Fetch user info
         user_info_url = 'https://api.github.com/user'
         user_info_response = req.get(user_info_url, headers={'Authorization': f'token {access_token}'})
-        
+
         if user_info_response.status_code != 200:
-            print(f"Failed to fetch user info: {user_info_response.content}")
             return Response({"error": "Failed to fetch user info"}, status=status.HTTP_400_BAD_REQUEST)
 
         user_info = user_info_response.json()
-        print(f"USER INFO: {user_info}")
         
+        # Get GitHub username
+        github_username = user_info.get('login', '').lower()
+        if not github_username:
+            return Response({"error": "GitHub username not found"}, status=status.HTTP_400_BAD_REQUEST)
+
         # Fetch email info
         email_info_url = 'https://api.github.com/user/emails'
         email_response = req.get(email_info_url, headers={'Authorization': f'token {access_token}'})
 
+        primary_email = None
         if email_response.status_code == 200:
             email_data = email_response.json()
             primary_email = next((email['email'] for email in email_data if email.get('primary')), None)
-        else:
-            primary_email = None  # Handle this case if no email is found
 
-        if not primary_email:
-            print("Email not found or unavailable")
-            return Response({"error": "Email not found"}, status=status.HTTP_400_BAD_REQUEST)
-
-        print("Email Info URL:", email_info_url)
-        print("Authorization Header:", f'token {access_token}')
-
-        if email_info_response.status_code == 200:
-            email_data = email_info_response.json()
-            print(f"EMAIL DATA: {email_data}")
-
-            email = next((e['email'] for e in email_data if e['primary']), None)
-            if not email:
-                print("No primary email found")
-                return Response({"error": "No primary email found"}, status=status.HTTP_400_BAD_REQUEST)
-        else:
-            print(f"Failed to retrieve email info: {email_info_response.content}")
-            return Response({"error": "Failed to retrieve email information"}, status=status.HTTP_400_BAD_REQUEST)
-
-        # Create or get the user
-        username = user_info.get('login')
+        # Find or create the user
+        User = get_user_model()
         user, created = User.objects.get_or_create(
-            username=username,
-            defaults={'email': email}
+            username=github_username,
+            defaults={'email': primary_email or 'default@example.com'}
         )
+        print(f"USER: {user.username}, Created: {created}")
+
+        account,created_account = SocialAccount.objects.get_or_create(
+            user=user,
+            provider='github',
+            defaults={'uid': user_info.get('id'), 'extra_data': user_info}
+        )
+
+        # Link the social account
+        try:
+            account = SocialAccount.objects.get(user=user, provider='github')
+            SocialToken.objects.create(
+                account=account,
+                token=access_token,
+                
+            )
+        except SocialAccount.DoesNotExist:
+            return Response({"error": "Social account does not exist"}, status=status.HTTP_404_NOT_FOUND)
+
         
-        if created:
-            print(f"User created: {username}")
-        else:
-            print(f"User already exists: {username}")
-
-        user.auth_token = access_token  # Ensure to handle token storage securely
-        user.save()
-
-        return Response({"message": "GitHub account linked successfully"}, status=status.HTTP_200_OK)
-
+        return Response({"message": "GitHub account linked successfully", "token": access_token}, status=status.HTTP_200_OK)
+        # return redirect(f"http://localhost:8080/githubrepos")
 
 
 
