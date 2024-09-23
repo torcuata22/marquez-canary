@@ -4,7 +4,7 @@ from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 
 #custom User with auth_token for GitHub auth
 class User(AbstractBaseUser):
-    email = models.EmailField(unique=True)
+    email = models.EmailField(unique=True, null=True, blank=True)
     username = models.CharField(max_length=255)
     password = models.CharField(max_length=255)
     auth_token = models.CharField(max_length=255, blank=True, null=True)  

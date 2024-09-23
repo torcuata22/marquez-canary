@@ -38,6 +38,7 @@ export default {
     const githubToken = localStorage.getItem('github_token'); // Check for GitHub token
     if (githubToken) {
       isGitHubLinked.value = true; 
+      console.log('Github Is Authenticated:', isAuthenticated.value);
     }
     
     return {
@@ -50,5 +51,5 @@ export default {
 </script>
 
 <style>
- /*global styles go here*/
+ 
 </style>

@@ -15,10 +15,12 @@
 
 <script setup>
 const linkWithGithub = () => {
+  console.log('Linking with GitHub...');
   const githubClientId = process.env.VUE_APP_GITHUB_CLIENT_ID;
-  const redirectUri = 'http://127.0.0.1:8080/auth/github/callback'; 
+  const redirectUri = 'http://127.0.0.1:8000/auth/github/callback'; 
   const url = `https://github.com/login/oauth/authorize?client_id=${githubClientId}&redirect_uri=${redirectUri}&scope=repo`;
   window.location.href = url;
+  console.log("redirecting to:", url);
 };
 </script>
 

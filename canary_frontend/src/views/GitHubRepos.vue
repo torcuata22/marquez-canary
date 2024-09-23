@@ -19,7 +19,7 @@ const repos = ref([]); // Holds the repositories
 
 const fetchRepositories = async () => {
   const token = localStorage.getItem('github_token'); // Fetch token from localStorage
-  
+  console.log("Github Token:", token);
   if (token) {
     try {
       const response = await axios.get('https://api.github.com/user/repos', {

@@ -34,7 +34,7 @@ onMounted(async () => {
         axios.defaults.headers.common['Authorization'] = `Bearer ${res.data.token}`;
 
         // Redirect to the landing page after successful login
-        router.push({ name: 'LandingPage' });
+        router.push('/landing');
       } catch (errorResponse) {
         error.value = "Login failed. Please try again.";
         console.error("Error response from server:", errorResponse.response ? errorResponse.response.data : errorResponse);

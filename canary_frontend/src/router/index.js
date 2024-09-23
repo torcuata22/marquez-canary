@@ -23,7 +23,7 @@ const routes = [
     component: GitHubRepos,
   },
   {
-    path: '/auth/githubcallback',
+    path: '/auth/github/callback',
     name: 'GithubCallback',
     component: GithubCallback, 
   },
