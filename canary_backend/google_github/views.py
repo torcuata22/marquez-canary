@@ -133,35 +133,6 @@ class GitHubCallbackView(APIView):
         else:
             return JsonResponse({'error': 'Token not received'}, status=400)
 
-        
-        # return Response({"message": "GitHub account linked successfully", "token": access_token}, status=status.HTTP_200_OK)
-        
-# class GitHubCallbackView(APIView):
-#     def get(self, request):
-#         code = request.GET.get('code')
-#         client_id = os.getenv('GITHUB_CLIENT_ID')
-#         client_secret = os.getenv('GITHUB_CLIENT_SECRET')
-
-#         # Exchange code for an access token
-#         token_response = requests.post(
-#             'https://github.com/login/oauth/access_token',
-#             data={
-#                 'client_id': client_id,
-#                 'client_secret': client_secret,
-#                 'code': code
-#             },
-#             headers={'Accept': 'application/json'}
-#         )
-#         token_json = token_response.json()
-#         access_token = token_json.get('access_token')
-
-        # if access_token:
-        #     # Redirect the user to the frontend, passing the token
-        #     frontend_url = f'http://127.0.0.1:8080/githubrepos?token={access_token}'
-        #     return redirect(frontend_url)
-        # else:
-        #     return JsonResponse({'error': 'Token not received'}, status=400)
-
 
 class GitHubRepositoriesView(APIView):
     permission_classes = [permissions.IsAuthenticated]
@@ -194,14 +165,18 @@ class SelectRepositoryView(APIView):
         repo_name = request.data.get('repo_name')
         repo_url = request.data.get('repo_url')
 
-        if not repo_name or not repo_url:
-            return Response({"error": "Repository name and URL are required"}, status=status.HTTP_400_BAD_REQUEST)
-
-        GitHubRepository.objects.create(
-            user=request.user,
-            repo_name=repo_name,
-            repo_url=repo_url
-        )
+        if not repo_name:
+            return Response({"error": "Repository name is required"}, status=status.HTTP_400_BAD_REQUEST)
+        if not repo_url:
+            return Response({"error": "Repository URL is required"}, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            GitHubRepository.objects.create(
+                user=request.user,
+                repo_name=repo_name,
+                repo_url=repo_url
+            )
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
         return Response({"message": "Repository selected and saved"}, status=status.HTTP_201_CREATED)
 
@@ -246,7 +221,16 @@ class GitHubWebhookView(APIView):
 
         return JsonResponse({'message': 'Webhook processed successfully'}, status=status.HTTP_200_OK)
 
+#return list of events to send to front end
+class GitHubEventView(APIView):
+    permission_classes = [AllowAny]
 
+    def get(self, request, repo_name):
+        events = GitHubEvent.objects.filter(repository__repo_name=repo_name)
+        serializer = GitHubEventSerializer(events, many=True)
+        return JsonResponse(serializer.data, safe=False)
+
+        
 class GoogleLogin(SocialLoginView):
     adapter_class = GoogleOAuth2Adapter
     permission_classes = [permissions.AllowAny]
