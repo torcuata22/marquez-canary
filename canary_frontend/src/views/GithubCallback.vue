@@ -16,23 +16,25 @@ onMounted(async () => {
   console.log("GitHubCallback component is mounted");
   console.log("Current URL:", window.location.href);
 
+  // Extract the code from the URL
   code.value = new URLSearchParams(window.location.search).get('code');
 
   if (code.value) {
     console.log("Code Received:", code.value);
     try {
-      // Send the received code to your backend
+      // Send the code to the backend to get the access token
       const backendUrl = `http://127.0.0.1:8000/auth/github/callback/?code=${code.value}`;
       const response = await axios.get(backendUrl);
-      console.log("Backend Response:", response.data); // Add more logging
+
+      console.log("Backend Response:", response.data); 
 
       if (response.data && response.data.token) { 
         console.log("Storing token:", response.data.token);
         localStorage.setItem('github_token', response.data.token); // Store token in localStorage
         console.log("Token after storage:", localStorage.getItem('github_token'));
 
-        console.log("Navigating to the GitHubRepos view");
-        router.push({ name: 'GitHubRepos' }); // Navigate to the GitHubRepos route
+        // Navigate to GitHubRepos view
+        router.push({ name: 'GitHubRepos' });
       } else {
         console.error('Failed to link GitHub account:', response.data.error || 'No token in response');
       }

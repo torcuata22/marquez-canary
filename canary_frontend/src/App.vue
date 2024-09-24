@@ -3,14 +3,12 @@
     <div v-if="isAuthenticated">
       <LandingPage />
       <div v-if="isGitHubLinked">
-        <GitHubRepos /> <!-- Show only if GitHub account is linked -->
+        <GitHubRepos @githubLinked="setGitHubLinked" /> <!-- Show only if GitHub account is linked -->
       </div>
-
     </div>
     <div v-else>
       <HomeView />
     </div>
-    <router-view />
   </div>
 </template>
 
@@ -28,7 +26,7 @@ export default {
   },
   setup() {
     const isAuthenticated = ref(false);
-    const isGitHubLinked = ref(false);  // Declare isGitHubLinked only once
+    const isGitHubLinked = ref(false);
 
     const token = localStorage.getItem('google_token');
     if (token) {
@@ -41,14 +39,21 @@ export default {
       isGitHubLinked.value = true;
       console.log('GitHub Is Linked:', isGitHubLinked.value);
     }
+
+    // update isGitHubLinked
+    const setGitHubLinked = (linked) => {
+      isGitHubLinked.value = linked;
+    };
     
     return {
       isAuthenticated,
-      isGitHubLinked
+      isGitHubLinked,
+      setGitHubLinked
     };
   },
 };  
 </script>
+
 
 
 <style>

@@ -14,14 +14,23 @@
 
 
 <script setup>
-const linkWithGithub = () => {
+import axios from 'axios';
+
+const linkWithGithub = async () => {
   console.log('Linking with GitHub...');
-  const githubClientId = process.env.VUE_APP_GITHUB_CLIENT_ID;
-  const redirectUri = 'http://127.0.0.1:8000/auth/github/callback'; 
-  const url = `https://github.com/login/oauth/authorize?client_id=${githubClientId}&redirect_uri=${redirectUri}&scope=repo`;
-  window.location.href = url;
-  console.log("redirecting to:", url);
+  
+  try {
+    const response = await axios.get('http://127.0.0.1:8000/auth/github/');
+    // Assuming the backend returns the GitHub authorization URL:
+    const githubAuthUrl = response.data.url;
+    console.log("Redirecting to:", githubAuthUrl);
+    window.location.href = githubAuthUrl;
+  } catch (error) {
+    console.error("Error while linking with GitHub:", error);
+  }
 };
+
+// No need for onMounted() unless you want to initialize something on load
 </script>
 
 <style scoped>
