@@ -3,7 +3,8 @@ import HomeView from '../views/HomeView.vue';
 import LandingPage from '../views/LandingPage.vue';
 import GitHubRepos from '../views/GitHubRepos.vue'; 
 import GoogleCallback from '../views/GoogleCallback.vue';
-import GithubCallback from '../views/GithubCallback.vue';
+import GitHubCallback from '../views/GithubCallback.vue';
+import SingleGitHubRepo from '../views/SingelGitHubRepo.vue';
 
 
 const routes = [
@@ -23,9 +24,14 @@ const routes = [
     component: GitHubRepos,
   },
   {
-    path: '/auth/github/callback',
-    name: 'GithubCallback',
-    component: GithubCallback, 
+    path: '/githubrepos/:repoName',
+    name: 'SingleGitHubRepo',
+    component: SingleGitHubRepo,
+  },
+  {
+    path: '/github/callback',
+    name: 'GitHubCallback',
+    component: GitHubCallback,
   },
   {
     path: '/callback', 

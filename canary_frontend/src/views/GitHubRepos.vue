@@ -1,7 +1,7 @@
 <template>
   <div class="repos">
     <h1>Your Repositories:</h1>
-    <ul v-if="repos.length">
+    <ul class="table table-striped" v-if="repos.length">
       <li v-for="repo in repos" :key="repo.id">
         <i class="fas fa-code-branch"></i> {{ repo.name }}
         <button @click="selectRepo(repo)">Select Repo</button>
@@ -13,23 +13,43 @@
 </template>
 
 <script setup>
-import { ref, onMounted, defineEmits } from 'vue';
+import { ref, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
 import axios from 'axios';
 
-const emit = defineEmits(['githubLinked']); // Emit event to parent
-const repos = ref([]); // Holds the repositories
+const repos = ref([]);
+const router = useRouter();
 
 const fetchRepositories = async () => {
-  const token = localStorage.getItem('github_token'); // Fetch token from localStorage
-  console.log("GitHub Token:", token);
-  if (token) {
+  const tokenValue = localStorage.getItem('githubToken');
+  if (tokenValue) {
     try {
       const response = await axios.get('https://api.github.com/user/repos', {
         headers: {
-          Authorization: `token ${token}`
+          Authorization: `token ${tokenValue}`
+        }, 
+        params: {
+          per_page: 40,
+          page:1
         }
       });
-      repos.value = response.data; // Set the response data (repos) to the `repos` ref
+      const reposData = response.data;
+      const totalPages = response.headers.link.match(/rel="last"/) ? parseInt(response.headers.link.match(/&page=(\d+)/)[1]) : 1;
+
+      // fetch additional pages if necessary
+      for (let page = 2; page <= totalPages; page++) {
+        const nextPageResponse = await axios.get('https://api.github.com/user/repos', {
+          headers: {
+            Authorization: `token ${tokenValue}`
+          },
+          params: {
+            per_page: 100,
+            page
+          }
+        });
+        reposData.push(...nextPageResponse.data);
+      }
+      repos.value = reposData;
     } catch (error) {
       console.error("Error fetching repositories:", error);
     }
@@ -38,60 +58,39 @@ const fetchRepositories = async () => {
   }
 };
 
-// Function to handle the GitHub callback (retrieves code and fetches token)
-const handleGitHubCallback = async () => {
-  console.log('Handling GitHub callback...');
-  const urlParams = new URLSearchParams(window.location.search);
-  const code = urlParams.get('code'); // Extract the code from URL
-
-  if (code) {
-    try {
-      const response = await axios.get(`/auth/github/callback/?code=${code}`);
-      console.log('Response from GitHub callback:', response.data); // Log the response data (token)
-
-      if (response.data.access_token) {
-        const token = response.data.access_token;
-
-        // Store the token in localStorage
-        localStorage.setItem('github_token', token);
-        console.log('GitHub access token saved to localStorage');
-
-        // Emit an event to notify App.vue that GitHub is linked
-        emit('githubLinked', true);
-        
-        // Fetch repositories using the new token
-        fetchRepositories();
-
-      } else {
-        console.warning('No code URL found');
-        console.error('Failed to retrieve access token:', response.data.error);
-      }
-    } catch (error) {
-      console.error("Error handling GitHub callback:", error);
-    }
-  } else {
-    console.warn('No code found in URL for GitHub callback.');
-  }
-};
-
-// Link GitHub
 const linkGitHub = () => {
-  const clientId = 'YOUR_CLIENT_ID'; // Replace with your GitHub OAuth client ID
-  const redirectUri = encodeURIComponent('YOUR_REDIRECT_URI'); // Replace with your redirect URI
+  const clientId = process.env.VUE_APP_GITHUB_CLIENT_ID;
+  const redirectUri = encodeURIComponent('http://127.0.0.1:8000/auth/github/callback/');
   window.location.href = `https://github.com/login/oauth/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&scope=user:email`;
 };
 
-// Fetch repositories and handle GitHub callback on component mount
+const selectRepo = (repo) => {
+  console.log("Selecting repo:", repo);
+  axios.post('/api/select-repo/', { repo_name: repo.name, repo_url: repo.html_url })
+  .then(response => {
+    router.push({
+      name: 'SingleGitHubRepo',
+      params: {
+        repoName: repo.name,
+        repoUrl: repo.html_url
+      }
+      
+  }); 
+  console.log(response.data);
+  })
+  .catch(error => {
+    console.error(error)
+  })
+}
+
+
+
+
 onMounted(() => {
-  console.log("GitHubRepos component is mounted");
-  handleGitHubCallback(); // Handle the callback and extract token
-  fetchRepositories(); // Fetch repos if token is already in localStorage
-  
+  fetchRepositories();
 });
 </script>
 
-
-
 <style scoped>
-/* Add any styles here */
+
 </style>

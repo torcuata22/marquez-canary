@@ -8,12 +8,14 @@
     </div>
     <div v-else>
       <HomeView />
+    
     </div>
   </div>
 </template>
 
 <script>
 import { ref } from 'vue';
+import { onMounted } from 'vue'; 
 import HomeView from './views/HomeView.vue'; 
 import LandingPage from './views/LandingPage.vue';
 import GitHubRepos from './views/GitHubRepos.vue';
@@ -31,27 +33,33 @@ export default {
     const token = localStorage.getItem('google_token');
     if (token) {
       isAuthenticated.value = true;
-      console.log('Is Authenticated:', isAuthenticated.value);
     }
 
-    const githubToken = localStorage.getItem('github_token'); // Check for GitHub token
+    const githubToken = localStorage.getItem('token'); // Check for GitHub token
     if (githubToken) {
       isGitHubLinked.value = true;
-      console.log('GitHub Is Linked:', isGitHubLinked.value);
+      console.log("GitHub Token:", githubToken);
     }
 
     // update isGitHubLinked
     const setGitHubLinked = (linked) => {
       isGitHubLinked.value = linked;
     };
-    
+
+    // Log values when component is mounted
+    onMounted(() => {
+      console.log('Is Authenticated:', isAuthenticated.value);
+      console.log('GitHub Token:', githubToken);
+      console.log('GitHub Is Linked:', isGitHubLinked.value);
+    });
+
     return {
       isAuthenticated,
       isGitHubLinked,
       setGitHubLinked
     };
   },
-};  
+};
 </script>
 
 
