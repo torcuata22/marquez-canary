@@ -19,6 +19,11 @@ const routes = [
     component: LandingPage,
   },
   {
+    path: '/auth/callback/github', 
+    name: 'GitHubCallback',
+    component: GitHubCallback,
+  },
+  {
     path: '/githubrepos',
     name: 'GitHubRepos',
     component: GitHubRepos,
@@ -27,11 +32,6 @@ const routes = [
     path: '/githubrepos/:repoName',
     name: 'SingleGitHubRepo',
     component: SingleGitHubRepo,
-  },
-  {
-    path: '/github/callback',
-    name: 'GitHubCallback',
-    component: GitHubCallback,
   },
   {
     path: '/callback', 
