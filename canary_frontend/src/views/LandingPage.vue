@@ -4,7 +4,7 @@
       <div class="card-body text-center">
         <img src="../assets/github.png" class="card-img-top" alt="Logo">
         <h5 class="card-title mt-5">Link to Your Github Account</h5>
-        <button @click="linkWithGithub" class="btn btn-lg btn-block btn-primary mt-5">
+        <button @click="signInWithGitHub" class="btn btn-lg btn-block btn-primary mt-5">
           <i class="fab fa-github"></i> Link to GitHub
         </button>
       </div>
@@ -13,17 +13,50 @@
 </template>
 
 
-<script setup>
-const linkWithGithub = () => {
-  console.log('Linking with GitHub...');
-  const githubClientId = process.env.VUE_APP_GITHUB_CLIENT_ID;
-  const redirectUri = 'http://127.0.0.1:8000/auth/github/callback/'; 
-  const url = `https://github.com/login/oauth/authorize?client_id=${githubClientId}&redirect_uri=${redirectUri}&scope=repo`;
-  window.location.href = url;
-  console.log("redirecting to:", url);
-};
 
+<script>
+import { getAuth, GithubAuthProvider, signInWithPopup } from "firebase/auth";
+
+
+export default {
+  name: 'LandingPage',
+  methods:{
+    async signInWithGitHub() {
+  const auth = getAuth(); // Instance initialized in main.js
+  const provider = new GithubAuthProvider();
+  
+  try {
+    const result = await signInWithPopup(auth, provider);
+    console.log('RESULT', result);
+
+    // Extract the credential from the result
+    const credential = GithubAuthProvider.credentialFromResult(result);
+    
+    // Get the access token
+    const token = credential.accessToken;
+
+    // Save the token to localStorage
+    if (token) {
+      localStorage.setItem('githubToken', token); // Save token for later use
+      console.log('GitHub Access Token:', token);
+    } else {
+      console.error('No credential found. Unable to retrieve GitHub token.');
+    }
+
+    // Redirect to the success page
+    this.$router.push('/githubrepos');
+  } catch (error) {
+    console.error('Error during GitHub sign-in:', error);
+  }
+}
+
+  }
+}
+  
 </script>
+
+
+
 
 <style scoped>
 

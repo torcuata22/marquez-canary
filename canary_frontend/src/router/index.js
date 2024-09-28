@@ -19,7 +19,7 @@ const routes = [
     component: LandingPage,
   },
   {
-    path: '/auth/callback/github', 
+    path: '/github/callback', 
     name: 'GitHubCallback',
     component: GitHubCallback,
   },
