@@ -14,15 +14,13 @@
 </div>
 </template>
 
-
 <script setup>
-import { ref, onMounted, watch } from 'vue';
+import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import axios from 'axios';
 
 const repos = ref([]);
 const router = useRouter();
-const isLinked = ref(!!localStorage.getItem('githubToken')); // Track if linked
 
 const fetchRepositories = async () => {
   const tokenValue = localStorage.getItem('githubToken');
@@ -31,10 +29,10 @@ const fetchRepositories = async () => {
       const response = await axios.get('https://api.github.com/user/repos', {
         headers: {
           Authorization: `token ${tokenValue}`
-        },
+        }, 
         params: {
           per_page: 40,
-          page: 1
+          page:1
         }
       });
 
@@ -83,17 +81,8 @@ const selectRepo = (repo) => {
     });
 };
 
-// Fetch repositories when the component mounts
 onMounted(() => {
   fetchRepositories();
-});
-
-// Watch for changes in the GitHub token to refresh the repositories
-watch(() => localStorage.getItem('githubToken'), (newToken) => {
-  if (newToken) {
-    fetchRepositories();
-    isLinked.value = true; // Update the linked state
-  }
 });
 </script>
 
